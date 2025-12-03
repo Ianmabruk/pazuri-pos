@@ -1,0 +1,106 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+export default function Login() {
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!name.trim() || !password.trim()) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    // Navigate to verification page with user data
+    navigate('/verify-code', {
+      state: {
+        userData: {
+          name: name.trim(),
+          password
+        }
+      }
+    });
+  };
+
+  const handleGetStarted = () => {
+    if (user) navigate(user.role === 'admin' ? '/admin' : '/cashier');
+    else navigate('/register');
+  };
+
+  return (
+    <section className="section">
+      <div className="container auth-grid">
+        <div className="auth-left">
+          <img src="/logo.png" alt="Pazuri Fish" />
+          <h2>Fresh Delivery, Everyday</h2>
+          <p style={{opacity:0.95}}>Pazuri POS makes checkout, inventory, and shift management fast and accurate for fish vendors.</p>
+
+          <div className="auth-features">
+            <div className="auth-feature">Inventory by kg</div>
+            <div className="auth-feature">Shift & float tracking</div>
+            <div className="auth-feature">Credit approvals</div>
+          </div>
+
+          <div style={{marginTop:18}}>
+            <button onClick={handleGetStarted} className="btn btn-outline">Get Started</button>
+          </div>
+        </div>
+
+        <div className="auth-right">
+          <div className="auth-card card padded">
+            <h1 style={{fontSize:22, fontWeight:800, color:'var(--primary)', marginBottom:12}}>Welcome back</h1>
+            <p className="muted" style={{marginBottom:16}}>Sign in to access your dashboard</p>
+
+            {error && (
+              <div style={{
+                background: '#fee2e2',
+                color: '#dc2626',
+                padding: '12px',
+                borderRadius: 8,
+                marginBottom: 16,
+                fontSize: 14
+              }}>
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                placeholder="Username"
+                className="input mb-4"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                className="input mb-6"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+
+              <button type="submit" className="btn btn-primary" style={{width:'100%'}}>
+                Login
+              </button>
+            </form>
+
+            <div style={{display:'flex', justifyContent:'space-between', marginTop:12}}>
+              <Link to="/register" style={{color:'var(--primary)', fontWeight:700}}>Create account</Link>
+              <Link to="/" className="muted">Back to home</Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
